@@ -271,6 +271,7 @@ public class Composer{
                         tLastChild=tConvertNode;
                         break;
                     case String:
+                    	this.alreadyHandleLine();
                         if(this.isCloseLine(tConvertNode.mValueStr)){
                             // this.log("此处不应该有"+tNowLine+",是否缺少冒号?");
                         }else{
@@ -278,7 +279,7 @@ public class Composer{
                                 return;
                             this.setNextUnhandleLine(tNowLine+(this.getNextUnhandleLine().trim()));
                         }
-                        this.alreadyHandleLine();
+                        //this.alreadyHandleLine();
                         break;
                 }
             }else{ // 与父节点同级或更上级节点,交由上一层处理
@@ -541,6 +542,9 @@ public class Composer{
                     }
                 }else{
                     if(c==':'){
+                    	if(tIndex<tArrs.length&&tArrs[tIndex]!=' ')
+                    		continue;
+                    	
                         int tStartIndex=tNameWarp?1:0;
                         tNode.mName=new String(tArrs,tStartIndex,Math.max(0,(tNameWarp?tIndex:tIndex-1)-tStartIndex));
 

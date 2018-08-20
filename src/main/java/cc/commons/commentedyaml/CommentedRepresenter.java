@@ -62,40 +62,45 @@ public class CommentedRepresenter extends Representer{
 
         @Override
         public Node representData(Object pData){
-            Map<String,CommentedValue> tMapValues=((CommentedSection)pData).values();
-            List<NodeTuple> tNodes=new ArrayList<NodeTuple>(tMapValues.size());
-            MappingNode tNode=new MappingNode(Tag.MAP,tNodes,FlowStyle.AUTO);
-            representedObjects.put(objectToRepresent,tNode);
-            boolean tBestStyle=true;
-            for(Map.Entry<String,CommentedValue> sEntry : tMapValues.entrySet()){
-                if(sEntry.getValue().getValue()==null)
-                    continue;
-
-                Node tNodeKey=CommentedRepresenter.this.representData(sEntry.getKey());
-                Node tNodeValue=CommentedRepresenter.this.representData(sEntry.getValue());
-                if(!(tNodeKey instanceof ScalarNode&&((ScalarNode)tNodeKey).getStyle()==null)){
-                    tBestStyle=false;
-                }
-                if(!(tNodeValue instanceof ScalarNode&&((ScalarNode)tNodeValue).getStyle()==null)){
-                    tBestStyle=false;
-                }
-                tNodes.add(new NodeTuple(tNodeKey,tNodeValue));
-            }
-            if(defaultFlowStyle!=FlowStyle.AUTO){
-                //tNode.setFlowStyle(defaultFlowStyle.getStyleBoolean());
-            	tNode.setFlowStyle(defaultFlowStyle);
-            }else{
-                //tNode.setFlowStyle(tBestStyle);
-            	if(tBestStyle)
-            	{
-            		tNode.setFlowStyle(FlowStyle.FLOW);
-            	}
-            	else
-            	{
-            		tNode.setFlowStyle(FlowStyle.BLOCK);
-            	}
-            }
-            return tNode;
+        	try {
+	            Map<String,CommentedValue> tMapValues=((CommentedSection)pData).values();
+	            List<NodeTuple> tNodes=new ArrayList<NodeTuple>(tMapValues.size());
+	            MappingNode tNode=new MappingNode(Tag.MAP,tNodes,FlowStyle.AUTO);
+	            representedObjects.put(objectToRepresent,tNode);
+	            boolean tBestStyle=true;
+	            for(Map.Entry<String,CommentedValue> sEntry : tMapValues.entrySet()){
+	                if(sEntry.getValue().getValue()==null)
+	                    continue;
+	
+	                Node tNodeKey=CommentedRepresenter.this.representData(sEntry.getKey());
+	                Node tNodeValue=CommentedRepresenter.this.representData(sEntry.getValue());
+	                if(!(tNodeKey instanceof ScalarNode&&((ScalarNode)tNodeKey).getStyle()==null)){
+	                    tBestStyle=false;
+	                }
+	                if(!(tNodeValue instanceof ScalarNode&&((ScalarNode)tNodeValue).getStyle()==null)){
+	                    tBestStyle=false;
+	                }
+	                tNodes.add(new NodeTuple(tNodeKey,tNodeValue));
+	            }
+	            if(defaultFlowStyle!=FlowStyle.AUTO){
+	                //tNode.setFlowStyle(defaultFlowStyle.getStyleBoolean());
+	            	tNode.setFlowStyle(defaultFlowStyle);
+	            }else{
+	                //tNode.setFlowStyle(tBestStyle);
+	            	if(tBestStyle)
+	            	{
+	            		tNode.setFlowStyle(FlowStyle.FLOW);
+	            	}
+	            	else
+	            	{
+	            		tNode.setFlowStyle(FlowStyle.BLOCK);
+	            	}
+	            }
+	            return tNode;
+        	}catch(NoSuchMethodError e)
+        	{
+        		return super.representData(((CommentedSection)pData).values());
+        	}
         }
     };
 

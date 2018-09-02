@@ -6,7 +6,8 @@ public class CommentedOptions extends DumperOptions{
 
     private char mPathSeparator='.';
     private boolean mSaveComment=true;
-
+    private boolean mBackupOnFormatError=true;
+    
     protected CommentedOptions(){}
 
     public char pathSeparator(){
@@ -32,4 +33,21 @@ public class CommentedOptions extends DumperOptions{
         return oldStatus;
     }
 
+    public boolean isBackupOnFormatError(){
+        return this.mSaveComment;
+    }
+    
+    /**
+     * 启用或禁用在文件格式错误时的备份
+     * 
+     * @param pEnable
+     *            启用或禁用
+     * @return 之前的状态
+     */
+    public boolean backupOnFormatError(boolean pEnable){
+        boolean oldStatus=this.mBackupOnFormatError;
+        this.mBackupOnFormatError=pEnable;
+        return oldStatus;
+    }
+    
 }

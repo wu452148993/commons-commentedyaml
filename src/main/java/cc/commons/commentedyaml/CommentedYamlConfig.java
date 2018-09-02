@@ -7,7 +7,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,6 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Date;
 
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -387,14 +390,20 @@ public class CommentedYamlConfig extends CommentedSection{
      *             如果文件为空
      */
     public boolean loadFromFile(File pFile){
-        FileInputStream tInput=null;
+        InputStreamReader tInput=null;
+        boolean tBackup=false,tResult=true;
         try{
-            byte[] tContents=new byte[(int)pFile.length()];
-            if(!pFile.isFile())
-                this.tryCreateFile(pFile);
-            tInput=new FileInputStream(pFile);
-            tInput.read(tContents);
-            this.loadFromString(new String(tContents,"UTF-8"));
+            if(!pFile.isFile()) this.tryCreateFile(pFile);
+
+            int tReadLen=-1;
+            char[] tBuff=new char[2048];
+            InputStreamReader tReader=(tInput=new InputStreamReader(new FileInputStream(pFile),"UTF-8"));
+            StringBuilder tSBuilder=new StringBuilder();
+            while((tReadLen=tReader.read(tBuff))!=-1){
+                tSBuilder.append(tBuff,0,tReadLen);
+            }
+
+            this.loadFromString(tSBuilder.toString());
         }catch(FileNotFoundException ex){
             this.log("无法找到文件["+pFile+"]",ex);
             return false;
@@ -403,15 +412,27 @@ public class CommentedYamlConfig extends CommentedSection{
             return false;
         }catch(YAMLException ex){
             this.log("无法加载文件["+pFile+"],配置文件格式错误",ex);
-            return false;
+            tBackup=this.options().isBackupOnFormatError();
+            tResult=false;
         }finally{
-            if(tInput!=null)
-                try{
-                    tInput.close();
-                }catch(IOException exp){
-                }
+            if(tInput!=null) try{
+                tInput.close();
+            }catch(IOException ignore){
+            }
         }
-        return true;
+
+        if(tBackup){
+            String tFileName=pFile.getName(),tSuffix="";
+            int tIndex=tFileName.lastIndexOf('.');
+            if(tIndex!=-1){
+                tSuffix=tFileName.substring(tIndex+1);
+                tFileName=tFileName.substring(0,tIndex);
+            }
+            tFileName=tFileName+(tSuffix.isEmpty()?"":'.'+tSuffix)+"."+new SimpleDateFormat("MMddHHmmssSSSS").format(new Date());
+            pFile.renameTo(new File(pFile.getAbsoluteFile().getParentFile(),tFileName));
+        }
+
+        return tResult;
     }
 
     /**
